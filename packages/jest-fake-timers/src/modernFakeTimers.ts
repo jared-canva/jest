@@ -104,6 +104,12 @@ export default class FakeTimers {
     }
   }
 
+  advanceTimersByTimeWithJump(msToRun: number): void {
+    if (this._checkFakeTimers()) {
+      this._clock.jump(msToRun);
+    }
+  }
+
   async advanceTimersByTimeAsync(msToRun: number): Promise<void> {
     if (this._checkFakeTimers()) {
       await this._clock.tickAsync(msToRun);

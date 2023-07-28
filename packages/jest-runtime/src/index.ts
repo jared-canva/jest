@@ -2253,6 +2253,17 @@ export default class Runtime {
           );
         }
       },
+      advanceTimersByTimeWithJump: msToRun => {
+        const fakeTimers = _getFakeTimers();
+
+        if (fakeTimers === this._environment.fakeTimersModern) {
+          return fakeTimers.advanceTimersByTimeWithJump(msToRun);
+        } else {
+          throw new TypeError(
+            '`jest.advanceTimersByTimeWithJump()` is not available when using legacy fake timers.',
+          );
+        }
+      },
       advanceTimersToNextTimer: steps =>
         _getFakeTimers().advanceTimersToNextTimer(steps),
       advanceTimersToNextTimerAsync: async steps => {

@@ -957,6 +957,19 @@ This function is not available when using legacy fake timers implementation.
 
 :::
 
+### `jest.advanceTimersByTimeJump(msToRun)`
+
+This function behaves similar to `jest.advanceTimersByTime(msToRun)` however, it will simulate the timer being throttled. e.g. by the browser being being put to sleep and later resumed. 
+
+It will fire any queued macro tasks only once. 
+
+:::info
+
+This function is not available when using legacy fake timers implementation.
+
+:::
+
+
 ### `jest.runOnlyPendingTimers()`
 
 Executes only the macro-tasks that are currently pending (i.e., only the tasks that have been queued by `setTimeout()` or `setInterval()` up to this point). If any of the currently pending macro-tasks schedule new macro-tasks, those new tasks will not be executed by this call.

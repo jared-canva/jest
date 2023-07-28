@@ -8,6 +8,7 @@
 
 import {makeProjectConfig} from '@jest/test-utils';
 import FakeTimers from '../modernFakeTimers';
+import exp = require('constants');
 
 describe('FakeTimers', () => {
   describe('construction', () => {
@@ -318,7 +319,7 @@ describe('FakeTimers', () => {
       expect(fn).toHaveBeenCalledWith('mockArg1', 'mockArg2');
     });
 
-    it("doesn't pass the callback to native setTimeout", () => {
+    it('doesn't pass the callback to native setTimeout', () => {
       const nativeSetTimeout = jest.fn();
 
       const global = {
@@ -386,6 +387,56 @@ describe('FakeTimers', () => {
 
       timers.runAllTimers();
       expect(fn).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('advanceTimersByTimeWithJump', () => {
+    it('pushes back execution time for skipped timers', function () {
+      const global = {
+        Date,
+        clearTimeout,
+        process,
+        setTimeout,
+      } as unknown as typeof globalThis;
+      const timers = new FakeTimers({config: makeProjectConfig(), global});
+      const fn = jest.fn();
+      
+      global.setTimeout(() => {
+          fn(global.Date.now());
+      }, 1000);
+
+      timers.advanceTimersByTimeWithJump(2000);
+
+      expect(fn).toBeCalledTimes(1);
+      expect(fn).toBeCalledTimes(2000);
+    });
+
+    it('only executes a timeout once when using jump', function () {
+      const global = {
+        Date,
+        clearTimeout,
+        process,
+        setTimeout,
+      } as unknown as typeof globalThis;
+      const timers = new FakeTimers({config: makeProjectConfig(), global});
+      timers.useFakeTimers();
+
+      const fired1 = jest.fn();
+      const fired2 = jest.fn();
+      const notFired1 = jest.fn();
+      const notFired2 = jest.fn();
+
+      global.setTimeout(notFired1, 2000);
+      global.setInterval(notFired2, 2500);
+      global.setTimeout(fired1, 250);
+      global.setInterval(fired2, 100);
+
+      timers.advanceTimersByTimeWithJump(1500);
+
+      expect(fired1).toHaveBeenCalledTimes(1);
+      expect(fired2).toHaveBeenCalledTimes(1);
+      expect(notFired1).toHaveBeenCalledTimes(0);
+      expect(notFired2).toHaveBeenCalledTimes(0);
     });
   });
 
